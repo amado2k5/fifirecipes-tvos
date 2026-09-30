@@ -27,14 +27,7 @@ jobs:
         run: |
           set -eo pipefail
           # Prefer "Apple TV 4K (3rd generation)"; fall back to any tvOS sim.
-          NAME=$(xcrun simctl list devices available -j \
-            | python3 -c '
-import json, sys
-devs = json.load(sys.stdin)["devices"]
-flat = [(runtime, d["name"]) for runtime, arr in devs.items()
-        for d in arr if "tvOS" in runtime and d.get("isAvailable", True)]
-pref = [n for _, n in flat if "4K" in n]
-print(pref[0] if pref else (flat[0][1] if flat else ""))')
+          NAME=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; devs=json.load(sys.stdin)["devices"]; flat=[d["name"] for r,arr in devs.items() for d in arr if "tvOS" in r and d.get("isAvailable",True)]; pref=[n for n in flat if "4K" in n]; print(pref[0] if pref else (flat[0] if flat else ""))')
           if [ -z "$NAME" ]; then
             echo "::error::no Apple TV simulator available on this runner"
             exit 1
