@@ -112,6 +112,9 @@ final class FifiRecipesTVUITests: XCTestCase {
         let app = XCUIApplication()
         launch(app, lang: "en")
         XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 40))
+        // Cards render after the feed fetch — wait for one before pressing,
+        // otherwise early presses are swallowed while the screen is empty.
+        XCTAssertTrue(el(app, "heroCard").waitForExistence(timeout: 60))
 
         // Walk down the screen pressing Select on each card until the recipe
         // detail appears — hero or rail card, either one pushes a recipe.
@@ -148,6 +151,11 @@ final class FifiRecipesTVUITests: XCTestCase {
         goToTab(app, index: 3) // Kids tab
 
         XCTAssertTrue(el(app, "kidsScreen").waitForExistence(timeout: 40))
+        // Wait for the catalogue to render before pressing — early remote
+        // presses are swallowed while the grid is still empty.
+        XCTAssertTrue(app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'kidsCard-'"))
+            .firstMatch.waitForExistence(timeout: 60))
 
         // Pressing down through the filter chips reaches the card grid;
         // selecting any card opens the ready screen (its landmark is the
