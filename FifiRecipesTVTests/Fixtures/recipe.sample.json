@@ -1,0 +1,44 @@
+{
+  "recipe": {
+    "id": "test-recipe",
+    "title": "وصفة اختبار",
+    "titleEn": "Test Dish",
+    "chapter": "الفصل الأول",
+    "chapterNumber": 1,
+    "category": "أكلة رئيسية",
+    "cookingMethod": "فرن",
+    "prepTime": "١٠ دقائق",
+    "cookTime": "٣٠ دقيقة",
+    "servings": "٤",
+    "masterIngredients": [
+      { "id": "i1", "name": "دقيق", "standardAmount": "كوبان" },
+      { "id": "i2", "name": "سكر", "standardAmount": "ملعقة" }
+    ],
+    "uniqueInstructions": [
+      { "stepNumber": 1, "text": "اخلط المكونات", "textEn": "Mix the ingredients", "phase": "prep", "importance": "core" },
+      { "stepNumber": 2, "text": "اخبز", "textEn": "Bake", "phase": "cook", "importance": "core" },
+      { "stepNumber": 3, "text": "بالعجان: اعجن خمس دقائق", "textEn": "Stand mixer: knead five minutes", "isAlternative": true, "alternativeLabel": "بالعجان", "importance": "core" },
+      { "stepNumber": 4, "text": "نصيحة: سخن الفرن", "textEn": "Tip: preheat the oven", "importance": "tip" }
+    ]
+  },
+  "estimate": { "servings": 4, "kcal": 250, "protein": 8, "fat": 10, "carbs": 30 },
+  "translations": {
+    "en": {
+      "title": "Test Dish EN",
+      "chapter": "Chapter One",
+      "category": "Main course",
+      "cookingMethod": "Oven",
+      "prepTime": "10 min",
+      "cookTime": "30 min",
+      "servings": "4",
+      "culturalNotes": "A note from Fatma",
+      "ingredients": { "i1": { "name": "Flour", "standardAmount": "2 cups" } },
+      "instructions": { "1": "Mix all ingredients", "3": "Stand mixer: knead" }
+    },
+    "fr": {
+      "title": "Plat test",
+      "ingredients": { "i1": { "name": "Farine" } }
+    },
+    "ar": {}
+  }
+}

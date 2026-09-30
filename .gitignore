@@ -1,0 +1,14 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcresult/
+DerivedData/
+build/
+
+# macOS
+.DS_Store
+
+# Tooling scratch (generated resources live under FifiRecipes/)
+scripts/node_modules/
+scripts/*.tmp
+*.png.tmp
