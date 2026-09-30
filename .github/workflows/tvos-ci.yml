@@ -63,4 +63,13 @@ jobs:
             -scheme FifiRecipesTV \
             -destination "platform=tvOS Simulator,name=${{ steps.sim.outputs.name }}" \
             -only-testing:FifiRecipesTVUITests/FifiRecipesTVUITests \
+            -resultBundlePath ui-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload UI test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-tests-xcresult
+          path: ui-tests.xcresult
+          retention-days: 7

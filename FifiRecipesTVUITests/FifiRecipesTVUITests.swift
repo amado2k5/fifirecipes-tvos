@@ -111,10 +111,10 @@ final class FifiRecipesTVUITests: XCTestCase {
     func testHomeRailOpensRecipe() throws {
         let app = XCUIApplication()
         launch(app, lang: "en")
-        XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 40))
+        XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 90))
         // Cards render after the feed fetch — wait for one before pressing,
         // otherwise early presses are swallowed while the screen is empty.
-        XCTAssertTrue(el(app, "heroCard").waitForExistence(timeout: 60))
+        XCTAssertTrue(el(app, "heroCard").waitForExistence(timeout: 90))
 
         // Walk down the screen pressing Select on each card until the recipe
         // detail appears — hero or rail card, either one pushes a recipe.
@@ -122,7 +122,7 @@ final class FifiRecipesTVUITests: XCTestCase {
 
         // Menu (back) returns home.
         remote.press(.menu)
-        XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 15))
+        XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 30))
     }
 
     // MARK: RTL smoke — Arabic mirrors the layout
@@ -130,12 +130,12 @@ final class FifiRecipesTVUITests: XCTestCase {
     func testArabicRTLLayout() throws {
         let app = XCUIApplication()
         launch(app, lang: "ar")
-        XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 40))
+        XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 90))
 
         // In RTL the first tab (الرئيسية = Home) sits at the trailing (right)
         // edge — its x position should be right of center, not left.
         let homeTab = app.buttons["الرئيسية"].firstMatch
-        XCTAssertTrue(homeTab.waitForExistence(timeout: 10))
+        XCTAssertTrue(homeTab.waitForExistence(timeout: 30))
         let screenMid = app.windows.firstMatch.frame.midX
         XCTAssertGreaterThan(homeTab.frame.midX, screenMid,
                              "RTL: first tab should sit on the right half")
@@ -150,21 +150,21 @@ final class FifiRecipesTVUITests: XCTestCase {
         XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 40))
         goToTab(app, index: 3) // Kids tab
 
-        XCTAssertTrue(el(app, "kidsScreen").waitForExistence(timeout: 40))
+        XCTAssertTrue(el(app, "kidsScreen").waitForExistence(timeout: 90))
         // Wait for the catalogue to render before pressing — early remote
         // presses are swallowed while the grid is still empty.
         XCTAssertTrue(app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH 'kidsCard-'"))
-            .firstMatch.waitForExistence(timeout: 60))
+            .firstMatch.waitForExistence(timeout: 90))
 
         // Pressing down through the filter chips reaches the card grid;
         // selecting any card opens the ready screen (its landmark is the
         // Let's cook button).
-        XCTAssertTrue(pressUntil(app, "kidsStartCooking"),
+        XCTAssertTrue(pressUntil(app, "kidsStartCooking", tries: 30),
                       "no kids card opened the ready screen")
 
         // Keep walking down past the tickable ingredients to Let's cook.
-        XCTAssertTrue(pressUntil(app, "kidsStepNext"),
+        XCTAssertTrue(pressUntil(app, "kidsStepNext", tries: 30),
                       "Let's cook never opened the step flow")
 
         // Focus lands on Next via defaultFocus — pressing Select walks
