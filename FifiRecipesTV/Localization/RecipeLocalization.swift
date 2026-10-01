@@ -74,7 +74,10 @@ enum RecipeLocalization {
             ingredients: r.masterIngredients.map { mi in
                 Ingredient(
                     name: trIng[mi.id]?.name ?? mi.name,
-                    amount: trIng[mi.id]?.standardAmount ?? mi.standardAmount)
+                    // A missing translated amount falls back to English, not Arabic.
+                    amount: trIng[mi.id]?.standardAmount
+                        ?? (lang == "ar" ? nil : en?.ingredients?[mi.id]?.standardAmount)
+                        ?? mi.standardAmount)
             },
             steps: r.uniqueInstructions.map { ui in
                 Step(
