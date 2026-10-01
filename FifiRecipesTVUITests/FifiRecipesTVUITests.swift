@@ -118,7 +118,8 @@ final class FifiRecipesTVUITests: XCTestCase {
 
         // Walk down the screen pressing Select on each card until the recipe
         // detail appears — hero or rail card, either one pushes a recipe.
-        XCTAssertTrue(pressUntil(app, "recipeDetail"), "no card opened a recipe")
+        XCTAssertTrue(pressUntil(app, "recipeDetail", tries: 30),
+                      "no card opened a recipe")
 
         // Menu (back) returns home.
         remote.press(.menu)
