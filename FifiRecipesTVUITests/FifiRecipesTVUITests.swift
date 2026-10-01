@@ -121,8 +121,12 @@ final class FifiRecipesTVUITests: XCTestCase {
         XCTAssertTrue(pressUntil(app, "recipeDetail", tries: 30),
                       "no card opened a recipe")
 
-        // Menu (back) returns home.
-        remote.press(.menu)
+        // Menu (back) returns home. A press that lands while the detail is
+        // still animating in is dropped, so press again while it's showing.
+        for _ in 0..<5 where el(app, "recipeDetail").exists {
+            remote.press(.menu)
+            if el(app, "homeScreen").waitForExistence(timeout: 10) { break }
+        }
         XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 30))
     }
 

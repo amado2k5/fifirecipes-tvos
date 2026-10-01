@@ -27,13 +27,20 @@ jobs:
         run: |
           set -eo pipefail
           # Prefer "Apple TV 4K (3rd generation)"; fall back to any tvOS sim.
-          NAME=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; devs=json.load(sys.stdin)["devices"]; flat=[d["name"] for r,arr in devs.items() for d in arr if "tvOS" in r and d.get("isAvailable",True)]; pref=[n for n in flat if "4K" in n]; print(pref[0] if pref else (flat[0] if flat else ""))')
+          NAME=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; devs=json.load(sys.stdin)["devices"]; flat=[d for r,arr in devs.items() for d in arr if "tvOS" in r and d.get("isAvailable",True)]; pref=[d for d in flat if "4K" in d["name"]]; d=(pref or flat or [None])[0]; print(d["udid"]+" "+d["name"] if d else "")')
           if [ -z "$NAME" ]; then
             echo "::error::no Apple TV simulator available on this runner"
             exit 1
           fi
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "Using simulator: $NAME"
+          echo "id=${NAME%% *}" >> "$GITHUB_OUTPUT"
+          echo "Using simulator: ${NAME#* }"
+
+      # A cold simulator can take longer than XCUITest's 60s app-launch
+      # timeout, failing whichever UI test runs first — boot it and wait.
+      - name: Boot simulator
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.id }}" || true
+          xcrun simctl bootstatus "${{ steps.sim.outputs.id }}" -b
 
       - name: Build app
         run: |
@@ -41,7 +48,7 @@ jobs:
           xcodebuild build \
             -project FifiRecipesTV.xcodeproj \
             -scheme FifiRecipesTV \
-            -destination "platform=tvOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            -destination "platform=tvOS Simulator,id=${{ steps.sim.outputs.id }}" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
 
@@ -51,7 +58,7 @@ jobs:
           xcodebuild test \
             -project FifiRecipesTV.xcodeproj \
             -scheme FifiRecipesTV \
-            -destination "platform=tvOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            -destination "platform=tvOS Simulator,id=${{ steps.sim.outputs.id }}" \
             -only-testing:FifiRecipesTVTests \
             CODE_SIGNING_ALLOWED=NO
 
@@ -61,8 +68,9 @@ jobs:
           xcodebuild test \
             -project FifiRecipesTV.xcodeproj \
             -scheme FifiRecipesTV \
-            -destination "platform=tvOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            -destination "platform=tvOS Simulator,id=${{ steps.sim.outputs.id }}" \
             -only-testing:FifiRecipesTVUITests/FifiRecipesTVUITests \
+            -parallel-testing-enabled NO \
             -resultBundlePath ui-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
