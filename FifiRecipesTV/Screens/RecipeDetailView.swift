@@ -190,17 +190,24 @@ struct RecipeDetailView: View {
                                 .font(.title2)
                                 .foregroundStyle(isOn ? Palette.leaf : Palette.cardBorder)
                                 .frame(width: 44, height: 44)
-                            Text(ing.name)
-                                .fifiFont(.body, weight: .medium)
-                                .foregroundStyle(Palette.ink)
-                                .strikethrough(isOn)
-                                .opacity(isOn ? 0.6 : 1)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if let amount = ing.amount {
-                                Text(amount)
-                                    .fifiFont(.body, weight: .bold)
-                                    .foregroundStyle(Palette.leafDeep)
+                            // Amount sits under the name, not beside it: amounts can be whole
+                            // phrases ("500g fresh leaves, finely chopped with Makhrata") that
+                            // would otherwise squeeze the name into a one-word-wide column.
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(ing.name)
+                                    .fifiFont(.body, weight: .medium)
+                                    .foregroundStyle(Palette.ink)
+                                    .strikethrough(isOn)
+                                    .opacity(isOn ? 0.6 : 1)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                if let amount = ing.amount {
+                                    Text(amount)
+                                        .fifiFont(.body, weight: .bold)
+                                        .foregroundStyle(Palette.leafDeep)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .padding(.horizontal, 28)
                         .padding(.vertical, 18)
