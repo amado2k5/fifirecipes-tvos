@@ -39,11 +39,22 @@ final class ScreenshotTests: XCTestCase {
         }
     }
 
-    private func goToKidsTab(_ app: XCUIApplication) {
+    private func goToTab(_ app: XCUIApplication, index: Int) {
         for _ in 0..<8 { remote.press(.up); usleep(200_000) }
         for _ in 0..<6 { remote.press(.left); usleep(120_000) }
-        for _ in 0..<3 { remote.press(.right); usleep(150_000) }
+        for _ in 0..<index { remote.press(.right); usleep(150_000) }
         remote.press(.select)
+        usleep(500_000)
+    }
+
+    /// Press down+select until the element appears (walks into grids).
+    private func pressUntil(_ app: XCUIApplication, _ id: String, tries: Int = 20) -> Bool {
+        for _ in 0..<tries {
+            if el(app, id).exists { return true }
+            remote.press(.down); usleep(300_000)
+            remote.press(.select); usleep(400_000)
+        }
+        return el(app, id).exists
     }
 
     func testCaptureScreenshots() throws {
@@ -64,11 +75,31 @@ final class ScreenshotTests: XCTestCase {
             XCTAssertTrue(el(app, "homeScreen").waitForExistence(timeout: 15))
         }
 
-        // — Kids —
-        goToKidsTab(app)
+        // — Chapters —
+        goToTab(app, index: 1)
+        if el(app, "chaptersScreen").waitForExistence(timeout: 40) {
+            sleep(2)
+            snap(app, "chapters-en")
+        }
+
+        // — Search —
+        goToTab(app, index: 2)
+        if el(app, "searchScreen").waitForExistence(timeout: 40) {
+            sleep(1)
+            snap(app, "search-en")
+        }
+
+        // — Kids catalogue —
+        goToTab(app, index: 3)
         if el(app, "kidsScreen").waitForExistence(timeout: 40) {
             sleep(2)
             snap(app, "kids-en")
+
+            // — Kids cooking steps —
+            if pressUntil(app, "kidsStepNext") {
+                sleep(1)
+                snap(app, "kids-steps-en")
+            }
         }
     }
 
