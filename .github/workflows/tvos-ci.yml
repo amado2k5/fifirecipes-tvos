@@ -60,6 +60,7 @@ jobs:
             -scheme FifiRecipesTV \
             -destination "platform=tvOS Simulator,id=${{ steps.sim.outputs.id }}" \
             -only-testing:FifiRecipesTVTests \
+            -resultBundlePath unit-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
       - name: UI smoke tests
@@ -73,6 +74,12 @@ jobs:
             -parallel-testing-enabled NO \
             -resultBundlePath ui-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO
+
+      # Raw job logs and artifacts aren't always reachable, so surface the
+      # failing test names and messages as annotations on the run.
+      - name: Annotate failing tests
+        if: failure()
+        run: python3 scripts/ci-annotate-failures.py $(ls -d unit-tests.xcresult ui-tests.xcresult 2>/dev/null)
 
       - name: Upload UI test results on failure
         if: failure()
