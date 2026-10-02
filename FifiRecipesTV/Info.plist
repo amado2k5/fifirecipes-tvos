@@ -58,5 +58,7 @@
 		<string>BalooBhaijaan2-600.ttf</string>
 		<string>BalooBhaijaan2-800.ttf</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 </dict>
 </plist>

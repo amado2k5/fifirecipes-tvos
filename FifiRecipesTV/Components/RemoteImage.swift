@@ -10,16 +10,22 @@ struct RemoteImage: View {
     var cornerRadius: CGFloat = 0
 
     var body: some View {
-        AsyncImage(url: url, transaction: Transaction(animation: .easeIn(duration: 0.3))) { phase in
-            switch phase {
-            case .success(let image):
-                image.resizable().aspectRatio(contentMode: contentMode)
-            case .empty:
-                placeholder.overlay { ProgressView().tint(Palette.leafDeep) }
-            case .failure:
-                placeholder
-            @unknown default:
-                placeholder
+        // A .fill image reports its overflowing size as its own, so clipping
+        // the image itself clips nothing. Lay it out over a Color.clear that
+        // takes exactly the offered frame and clip that instead — otherwise
+        // the hero photo spills under the title and chips below it.
+        Color.clear.overlay {
+            AsyncImage(url: url, transaction: Transaction(animation: .easeIn(duration: 0.3))) { phase in
+                switch phase {
+                case .success(let image):
+                    image.resizable().aspectRatio(contentMode: contentMode)
+                case .empty:
+                    placeholder.overlay { ProgressView().tint(Palette.leafDeep) }
+                case .failure:
+                    placeholder
+                @unknown default:
+                    placeholder
+                }
             }
         }
         .clipped()

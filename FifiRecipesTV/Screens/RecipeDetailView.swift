@@ -128,7 +128,11 @@ struct RecipeDetailView: View {
                     .foregroundStyle(Palette.inkDim)
                 }
             }
-            .padding(.horizontal, FifiLayout.screenMargin)
+            .titlePanel()
+            // Lift the panel over the bottom of the photo, inset so the
+            // picture frames it.
+            .padding(.top, -110)
+            .padding(.horizontal, FifiLayout.screenMargin + 40)
         }
     }
 
