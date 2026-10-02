@@ -123,6 +123,35 @@ final class APIClientTests: XCTestCase {
         XCTAssertNil(AssetURL.resolve("", version: "v1"))
     }
 
+    // MARK: recipe file decoding
+
+    private func recipeJSON(estimate: String) -> Data {
+        Data("""
+        {"recipe": {"id": "meat-06", "title": "T", "masterIngredients": [],
+                    "uniqueInstructions": []},
+         "estimate": \(estimate),
+         "translations": {}}
+        """.utf8)
+    }
+
+    func testFractionalEstimateStillDecodes() throws {
+        // meat-06 and 53 others ship servings: 3.5 — this used to fail the
+        // whole recipe and show the error screen.
+        let file = try JSONDecoder().decode(
+            RecipeFile.self,
+            from: recipeJSON(estimate: #"{"servings": 3.5, "kcal": 412.6, "protein": 20}"#))
+        XCTAssertEqual(file.estimate?.servings, 4)
+        XCTAssertEqual(file.estimate?.kcal, 413)
+        XCTAssertEqual(file.estimate?.protein, 20)
+    }
+
+    func testMalformedEstimateDoesNotBlockRecipe() throws {
+        let file = try JSONDecoder().decode(
+            RecipeFile.self, from: recipeJSON(estimate: #""n/a""#))
+        XCTAssertNil(file.estimate)
+        XCTAssertEqual(file.recipe.id, "meat-06")
+    }
+
     func testVideoPickingOrder() {
         let v = VideoItem(id: "abc", title: "T", channel: nil, duration: nil, views: nil, short: nil)
         XCTAssertEqual(APIClient.pickVideos(["fr": [v]], lang: "fr").count, 1)
