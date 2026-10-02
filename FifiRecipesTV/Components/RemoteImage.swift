@@ -1,30 +1,63 @@
 import SwiftUI
+import UIKit
 
 /// Remote image with the branded produce placeholder and a soft fade-in —
-/// same behaviour as the TV app's Img component. Bytes come through
-/// URLSession.shared, which is configured with a generous URLCache and the
-/// manifest-versioned URLs produced by AppState.assetURL.
+/// same behaviour as the TV app's Img component.
+///
+/// Loads through `.task(id: url)` rather than AsyncImage: inside lazy stacks
+/// AsyncImage can land in `.failure` when its request is cancelled by a
+/// re-render or recycle (e.g. when images.json swaps a card's thumbnail URL
+/// for the 2x one) and never retries, leaving placeholders on slow networks.
+/// Here a cancelled load simply restarts the next time the view appears.
 struct RemoteImage: View {
     let url: URL?
     var contentMode: ContentMode = .fill
     var cornerRadius: CGFloat = 0
 
+    @State private var image: UIImage?
+    @State private var failed = false
+
     var body: some View {
-        AsyncImage(url: url, transaction: Transaction(animation: .easeIn(duration: 0.3))) { phase in
-            switch phase {
-            case .success(let image):
-                image.resizable().aspectRatio(contentMode: contentMode)
-            case .empty:
-                placeholder.overlay { ProgressView().tint(Palette.leafDeep) }
-            case .failure:
-                placeholder
-            @unknown default:
-                placeholder
+        ZStack {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+                    .transition(.opacity)
+            } else {
+                placeholder.overlay {
+                    if url != nil && !failed {
+                        ProgressView().tint(Palette.leafDeep)
+                    }
+                }
             }
         }
         .clipped()
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .accessibilityHidden(true)
+        .task(id: url) { await load() }
+    }
+
+    private func load() async {
+        guard let url else {
+            image = nil
+            return
+        }
+        if let cached = RemoteImageCache.shared.image(for: url) {
+            image = cached
+            failed = false
+            return
+        }
+        // Keep showing the previous image (say, the card thumbnail) while
+        // the sharper one loads.
+        failed = false
+        do {
+            let loaded = try await RemoteImageLoader.load(url)
+            RemoteImageCache.shared.insert(loaded.image, for: url)
+            withAnimation(.easeIn(duration: 0.3)) { image = loaded.image }
+        } catch {
+            if !Task.isCancelled && image == nil { failed = true }
+        }
     }
 
     private var placeholder: some View {
@@ -34,6 +67,55 @@ struct RemoteImage: View {
                 .frame(width: 64, height: 64)
                 .opacity(0.85)
         }
+    }
+}
+
+/// Decoded images shared across views, so rails that recycle cards don't
+/// download or decode the same photo twice.
+@MainActor
+final class RemoteImageCache {
+    static let shared = RemoteImageCache()
+    private let cache = NSCache<NSURL, UIImage>()
+
+    func image(for url: URL) -> UIImage? { cache.object(forKey: url as NSURL) }
+    func insert(_ image: UIImage, for url: URL) { cache.setObject(image, forKey: url as NSURL) }
+}
+
+/// Fetches and decodes off the main thread. URLs carry the manifest version
+/// (AppState.assetURL), so a disk URLCache is safe and survives relaunches.
+enum RemoteImageLoader {
+    struct Loaded: @unchecked Sendable { let image: UIImage }
+
+    static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.urlCache = URLCache(memoryCapacity: 16 << 20, diskCapacity: 256 << 20)
+        config.timeoutIntervalForRequest = 30
+        return URLSession(configuration: config)
+    }()
+
+    /// Retries transient failures (cellular hand-offs, timeouts) twice.
+    static func load(_ url: URL) async throws -> Loaded {
+        var lastError: Error = URLError(.unknown)
+        for attempt in 0..<3 {
+            try Task.checkCancellation()
+            do {
+                let (data, response) = try await session.data(from: url)
+                if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+                    throw URLError(.badServerResponse)
+                }
+                guard let decoded = UIImage(data: data) else {
+                    throw URLError(.cannotDecodeContentData)
+                }
+                return Loaded(image: decoded.preparingForDisplay() ?? decoded)
+            } catch {
+                try Task.checkCancellation()
+                lastError = error
+                if attempt < 2 {
+                    try await Task.sleep(nanoseconds: UInt64(attempt + 1) * 800_000_000)
+                }
+            }
+        }
+        throw lastError
     }
 }
 
