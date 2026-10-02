@@ -70,7 +70,11 @@ enum RecipeLocalization {
             prepTime: pick(.prepTime) ?? r.prepTime,
             cookTime: pick(.cookTime) ?? r.cookTime,
             servings: pick(.servings) ?? r.servings,
-            culturalNotes: t.culturalNotes,
+            // Many translations carry culturalNotes: "" — treat blank as absent
+            // so the "From Fatma's notebook" card isn't drawn empty.
+            culturalNotes: t.culturalNotes.flatMap {
+                $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0
+            },
             ingredients: r.masterIngredients.map { mi in
                 Ingredient(
                     name: trIng[mi.id]?.name ?? mi.name,

@@ -82,7 +82,8 @@ struct ChapterDetailView: View {
             }
             .padding(.vertical, 30)
         }
-        .navigationTitle(title)
+        // No .navigationTitle: the heading above already shows it, and tvOS
+        // would pin a second copy over the scrolling grid.
         .defaultFocus($focusedCard, cards.first?.id ?? "")
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("chapterDetail")
