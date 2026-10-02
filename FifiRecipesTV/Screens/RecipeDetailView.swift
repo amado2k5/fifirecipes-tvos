@@ -27,7 +27,8 @@ struct RecipeDetailView: View {
                 LoadingView(label: app.s[.loading])
             }
         }
-        .navigationTitle(file.map { RecipeLocalization.localize($0, lang: app.lang).title } ?? "")
+        // No .navigationTitle: tvOS pins it over the top of the page, where it
+        // doubled the big in-page title and stayed on screen while scrolling.
         .task(id: "\(id)|\(app.lang)") { load() }
         .alert(app.s[.openInYouTube], isPresented: $youtubeMissing) {
             Button(app.s[.close], role: .cancel) {}
