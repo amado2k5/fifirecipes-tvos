@@ -170,12 +170,47 @@ struct RecipeEstimate: Codable, Equatable {
     let carbs: Int?
     let fiber: Int?
     let sugar: Int?
+
+    private enum CodingKeys: String, CodingKey {
+        case servings, kcal, protein, fat, carbs, fiber, sugar
+    }
+
+    // Estimates are model-generated and sometimes fractional (servings 3.5
+    // in 54 recipes). Strict Int decoding rejected the whole recipe file, so
+    // accept any number and round it.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        func num(_ key: CodingKeys) -> Int? {
+            (try? c.decodeIfPresent(Double.self, forKey: key)).flatMap { $0 }
+                .map { Int($0.rounded()) }
+        }
+        servings = num(.servings)
+        kcal = num(.kcal)
+        protein = num(.protein)
+        fat = num(.fat)
+        carbs = num(.carbs)
+        fiber = num(.fiber)
+        sugar = num(.sugar)
+    }
 }
 
 struct RecipeFile: Codable, Equatable {
     let recipe: RecipeCore
     let estimate: RecipeEstimate?
     let translations: [String: RecipeTranslation]
+
+    private enum CodingKeys: String, CodingKey {
+        case recipe, estimate, translations
+    }
+
+    // The estimate is optional garnish: a malformed one must never stop the
+    // recipe itself from opening.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        recipe = try c.decode(RecipeCore.self, forKey: .recipe)
+        estimate = try? c.decodeIfPresent(RecipeEstimate.self, forKey: .estimate)
+        translations = try c.decode([String: RecipeTranslation].self, forKey: .translations)
+    }
 }
 
 /// /data/videos/{id}.json — YouTube hits per language.
