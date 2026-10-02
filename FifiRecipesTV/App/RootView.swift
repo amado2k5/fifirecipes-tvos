@@ -6,6 +6,10 @@ struct RootView: View {
     var body: some View {
         content
             .background { PaperBackground() }
+            // The palette is light-only. In dark mode the system chrome (search
+            // keyboard, search field, nav titles) draws white over the cream
+            // paper and becomes unreadable, so pin the whole app to light.
+            .preferredColorScheme(.light)
     }
 
     @ViewBuilder
