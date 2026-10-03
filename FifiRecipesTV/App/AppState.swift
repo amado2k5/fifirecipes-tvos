@@ -36,7 +36,9 @@ final class AppState: ObservableObject {
     /// Per-tab navigation — keeps standard TabView + NavigationStack chrome.
     /// tvOS renders the TabView as the top tab bar and the Menu button pops
     /// each stack for free.
-    @Published var selectedTab: Tab = .home
+    @Published var selectedTab: Tab = .home {
+        didSet { if selectedTab == .home, oldValue != .home { refreshFeed() } }
+    }
     @Published var homePath = NavigationPath()
     @Published var chaptersPath = NavigationPath()
     @Published var searchPath = NavigationPath()
@@ -49,6 +51,17 @@ final class AppState: ObservableObject {
     }
 
     var s: Strings { Strings(lang: lang) }
+
+    /// Back on Home from another tab: ask for a fresh home layout — the server
+    /// returns a different random hero + rails on every request. Failures keep
+    /// the current feed.
+    private func refreshFeed() {
+        let code = lang
+        Task {
+            guard let fresh = try? await api.feed(lang: code), code == lang else { return }
+            feed = fresh
+        }
+    }
 
     /// Site-relative asset path or external URL → absolute, manifest-versioned
     /// URL so a deploy invalidates URLCache entries.
