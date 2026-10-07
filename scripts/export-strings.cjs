@@ -25,8 +25,8 @@ const mod = jiti(stringsPath);
 const { STRINGS, EN } = mod;
 
 if (!STRINGS || !EN) throw new Error('STRINGS/EN exports not found in strings.ts');
-if (Object.keys(STRINGS).length !== 27) {
-  throw new Error(`expected 27 languages, got ${Object.keys(STRINGS).length}`);
+if (Object.keys(STRINGS).length !== 28) {
+  throw new Error(`expected 28 languages, got ${Object.keys(STRINGS).length}`);
 }
 
 // tvOS-only strings. WKWebView doesn't exist on tvOS, so videos hand off to
@@ -59,6 +59,7 @@ const EXTRA = {
     tr: 'Bu Apple TV’de YouTube uygulaması yüklü değil. Videoyu izlemek için App Store’dan ücretsiz yükleyin.',
     ur: 'اس Apple TV پر YouTube ایپ انسٹال نہیں ہے۔ ویڈیو دیکھنے کے لیے اسے App Store سے مفت انسٹال کریں۔',
     vi: 'Apple TV này chưa cài đặt YouTube. Hãy cài đặt miễn phí từ App Store để xem video.',
+    sq: 'Aplikacioni YouTube nuk është i instaluar në këtë Apple TV. Instaloje falas nga App Store për ta parë.',
     zh: '此 Apple TV 未安装 YouTube 应用。可从 App Store 免费安装后观看。',
   },
 };
