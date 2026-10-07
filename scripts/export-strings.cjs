@@ -25,8 +25,8 @@ const mod = jiti(stringsPath);
 const { STRINGS, EN } = mod;
 
 if (!STRINGS || !EN) throw new Error('STRINGS/EN exports not found in strings.ts');
-if (Object.keys(STRINGS).length !== 28) {
-  throw new Error(`expected 28 languages, got ${Object.keys(STRINGS).length}`);
+if (Object.keys(STRINGS).length !== 29) {
+  throw new Error(`expected 29 languages, got ${Object.keys(STRINGS).length}`);
 }
 
 // tvOS-only strings. WKWebView doesn't exist on tvOS, so videos hand off to
