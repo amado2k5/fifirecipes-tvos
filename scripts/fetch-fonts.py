@@ -20,6 +20,8 @@ FAMILIES = {
     "Heebo": [400, 500, 700],
     "Baloo 2": [400, 600, 800],
     "Baloo Bhaijaan 2": [400, 600, 800],
+    "Noto Sans Bengali": [400, 500, 700],
+    "Baloo Da 2": [400, 600, 800],
 }
 
 BLOCK = re.compile(r"@font-face\s*\{([^}]*)\}")

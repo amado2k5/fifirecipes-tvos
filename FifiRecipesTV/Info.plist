@@ -57,6 +57,12 @@
 		<string>BalooBhaijaan2-400.ttf</string>
 		<string>BalooBhaijaan2-600.ttf</string>
 		<string>BalooBhaijaan2-800.ttf</string>
+		<string>NotoSansBengali-400.ttf</string>
+		<string>NotoSansBengali-500.ttf</string>
+		<string>NotoSansBengali-700.ttf</string>
+		<string>BalooDa2-400.ttf</string>
+		<string>BalooDa2-600.ttf</string>
+		<string>BalooDa2-800.ttf</string>
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
