@@ -21,7 +21,7 @@ final class StringsTests: XCTestCase {
         XCTAssertEqual(table.count, 27)
         for code in ["ar", "en", "fr", "es", "ja", "hi", "pt", "ru", "zh", "de",
                      "it", "el", "ur", "fa", "tr", "ku", "id", "sw", "ko", "nl",
-                     "ps", "he", "pl", "sv", "te", "bn", "vi"] {
+                     "ps", "he", "pl", "sv", "te", "bn", "vi", "cs"] {
             XCTAssertNotNil(table[code], "missing language \(code)")
         }
     }
