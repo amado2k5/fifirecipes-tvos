@@ -17,11 +17,11 @@ final class StringsTests: XCTestCase {
         let allergens: [String: [String: String]]
     }
 
-    func testAllTwentyNineLanguagesPresent() {
-        XCTAssertEqual(table.count, 29)
+    func testAllThirtyLanguagesPresent() {
+        XCTAssertEqual(table.count, 30)
         for code in ["ar", "en", "fr", "es", "ja", "hi", "pt", "ru", "zh", "de",
                      "it", "el", "ur", "fa", "tr", "ku", "id", "sw", "ko", "nl",
-                     "ps", "he", "pl", "sv", "te", "bn", "vi", "sq", "cs"] {
+                     "ps", "he", "pl", "sv", "te", "bn", "vi", "sq", "cs", "ro"] {
             XCTAssertNotNil(table[code], "missing language \(code)")
         }
     }
