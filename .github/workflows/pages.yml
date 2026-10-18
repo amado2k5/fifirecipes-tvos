@@ -1,29 +1,16 @@
-name: Deploy tvosapp site
+name: Deploy tvosapp.fifi.cooking to Cloudflare Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: github-pages
-  cancel-in-progress: false
-
+# Deployments are handled by Cloudflare Pages native Git integration.
+# This workflow is a stub; add post-deploy jobs here if needed (e.g. IndexNow).
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: https://tvosapp.fifi.cooking
+  placeholder:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-      - uses: actions/deploy-pages@v4
+      - run: echo "Deployed by Cloudflare Pages native Git integration"
